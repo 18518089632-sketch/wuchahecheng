@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="「误差合成」课程知识智能体，只回答《误差理论与数据处理》第 2 章 2.3 误差的合成相关问题。">
+  <title>误差合成 · 课程知识智能体</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwZjc2NmUiLz48dGV4dCB4PSIzMiIgeT0iNDYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjQyIiBmaWxsPSIjZmZmZmZmIj7OozwvdGV4dD48L3N2Zz4=">
+  <link rel="stylesheet" href="vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/katex/katex.min.js" defer></script>
+  <script src="config.js" defer></script>
+  <script src="brain.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="app-header" id="appHeader">
+      <div class="shell header-inner">
+        <div class="brand-mark" aria-hidden="true">∑</div>
+        <div class="brand-copy">
+          <h1>误差合成 · 课程知识智能体</h1>
+          <p>《误差理论与数据处理》· 第2章 2.3 误差的合成</p>
+        </div>
+        <span class="header-badge" aria-label="仅回答第 2.3 节">2.3</span>
+      </div>
+    </header>
+
+    <main class="chat-scroll" id="chatScroll">
+      <div class="shell main-inner">
+        <section class="scope-strip" aria-label="回答范围">
+          <div class="scope-summary-row">
+            <p class="scope-summary">
+              <span class="scope-yes">能答：误差合成的原理与计算</span>
+              <span class="scope-sep" aria-hidden="true">·</span>
+              <span class="scope-no">不能答：误差分配、最小二乘、回归、动态测试</span>
+            </p>
+            <button class="scope-toggle" id="scopeToggle" type="button" aria-expanded="false" aria-controls="scopeDetails">
+              <span class="scope-toggle-text">展开</span>
+              <svg class="chevron" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="scope-details" id="scopeDetails" hidden>
+            <div class="scope-columns">
+              <div class="scope-column">
+                <h2><span class="scope-dot scope-dot-yes" aria-hidden="true"></span>可以回答</h2>
+                <ul class="scope-list" id="scopeIn"></ul>
+              </div>
+              <div class="scope-column">
+                <h2><span class="scope-dot scope-dot-no" aria-hidden="true"></span>暂不回答</h2>
+                <ul class="scope-list" id="scopeOut"></ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="welcome" id="welcome" aria-labelledby="welcomeTitle">
+          <p class="welcome-eyebrow">课程助教 · 第 2.3 节</p>
+          <h2 id="welcomeTitle">把「误差合成」讲清楚</h2>
+          <p class="welcome-copy">我会围绕误差合成的基本概念、三条原理、计算公式和典型例子作答；超出本节范围的问题，我会直接说明。</p>
+          <div class="samples" id="sampleList" aria-label="示例问题"></div>
+        </section>
+
+        <section class="chat-log" id="chatLog" role="log" aria-live="polite" aria-relevant="additions text" aria-label="对话记录"></section>
+
+        <footer class="page-footer">
+          <p>知识来源：钱政《误差理论与数据处理》(第2版) 第2章；本页公式与结论以教材为准</p>
+          <button class="footer-clear" id="clearBtn" type="button">清空对话</button>
+        </footer>
+      </div>
+    </main>
+
+    <div class="composer-dock" id="composerDock">
+      <div class="shell dock-inner">
+        <div class="mode-row">
+          <span class="mode-caption" id="modeCaption">回答方式</span>
+          <div class="segmented" id="modeSelector" role="radiogroup" aria-labelledby="modeCaption">
+            <button class="mode-btn" type="button" role="radio" aria-checked="true" tabindex="0" data-mode="auto">自动</button>
+            <button class="mode-btn" type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="brief">一句话</button>
+            <button class="mode-btn" type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="detail">详细讲解</button>
+            <button class="mode-btn" type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="example">举例说明</button>
+          </div>
+        </div>
+
+        <form class="composer" id="composerForm" autocomplete="off">
+          <label class="sr-only" for="messageInput">输入你的问题</label>
+          <textarea id="messageInput" name="message" rows="1" maxlength="2000" enterkeyhint="send" placeholder="问误差合成的问题…"></textarea>
+          <button class="stop-btn" id="stopBtn" type="button" hidden>停止</button>
+          <button class="send-btn" id="sendBtn" type="submit" aria-label="发送" disabled>
+            <svg viewBox="0 0 20 20" width="19" height="19" aria-hidden="true">
+              <path d="M10 15.5V5.2M5.8 9.1L10 4.6l4.2 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+        <p class="composer-hint">回车发送 · Shift + 回车换行</p>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="confirm-dialog" id="clearDialog" aria-labelledby="clearDialogTitle">
+    <form method="dialog" class="dialog-body">
+      <h2 id="clearDialogTitle">清空当前对话？</h2>
+      <p>对话记录与已展开的「依据」将被一并清除，此操作无法撤销。</p>
+      <div class="dialog-actions">
+        <button class="dialog-btn dialog-btn-ghost" type="submit" value="cancel" autofocus>取消</button>
+        <button class="dialog-btn dialog-btn-danger" type="submit" value="confirm">清空对话</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="sr-only" id="liveStatus" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <div class="noscript">需要开启 JavaScript 才能使用本页的对话功能。</div>
+  </noscript>
+</body>
+</html>
