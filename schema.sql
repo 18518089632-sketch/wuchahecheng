@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS login_limits (
+  id TEXT PRIMARY KEY,
+  window INTEGER NOT NULL,
+  count INTEGER NOT NULL
+);

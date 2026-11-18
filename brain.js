@@ -333,8 +333,8 @@
     }
     onEvent({ type: "sources", sources: hits });
 
-    if (!cfg.apiKey) {
-      onEvent({ type: "error", message: "config.js 里没有填 apiKey，无法生成回答。" });
+    if (!cfg.proxyUrl) {
+      onEvent({ type: "error", message: "尚未配置服务端接口。" });
       onEvent({ type: "done" });
       return;
     }
@@ -351,14 +351,12 @@
     };
 
     var resp;
+    var reqUrl = "/api/chat";
+    var reqHeaders = { "Content-Type": "application/json", "Accept": "text/event-stream" };
     try {
-      resp = await fetch((cfg.base || "https://api.deepseek.com") + "/chat/completions", {
+      resp = await fetch(reqUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + cfg.apiKey,
-          "Accept": "text/event-stream"
-        },
+        headers: reqHeaders,
         body: JSON.stringify(body),
         signal: signal || null,
         cache: "no-store"
@@ -370,6 +368,7 @@
       return;
     }
 
+    if (resp.status === 401) { window.location.assign("/login"); return; }
     if (!resp.ok) {
       var detail = "";
       try { detail = (await resp.text()).slice(0, 300); } catch (e) {}
